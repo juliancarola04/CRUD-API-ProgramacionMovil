@@ -44,7 +44,7 @@
         {
             <div class="d-flex justify-content-between">
                 <button class="btn btn-primary" @onclick="cambiarEstado">Mostrar todos los productos</button>
-                <button class="btn btn-primary">Modificar el producto</button>
+                <button class="btn btn-primary" @onclick="() => modificarProducto(productoElegido.id)">Modificar el producto</button>
             </div>
 
             <table class="table">
@@ -94,5 +94,10 @@
     {
         productoElegido = producto;
         cambiarEstado();
+    }
+
+    private void modificarProducto(int id)
+    {
+        _navigationManager.NavigateTo($"/modificarproducto/{id}");
     }
 }

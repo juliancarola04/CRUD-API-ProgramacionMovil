@@ -1,0 +1,87 @@
+﻿@page "/modificarproducto/{Id:int?}"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+
+@if (estaCargando)
+{
+    <p>Cargando el producto...</p>
+} else if (producto is null)
+{
+    <p>No se pudo cargar el producto...</p>
+} else
+{
+    <button class="btn btn-primary mb-3" @onclick="mostrarProductos">Mostrar todos los productos</button>
+
+    if (mensaje is not null)
+    {
+        <p>@mensaje</p>
+    }
+    <EditForm Model="@producto" OnValidSubmit="putProducto">
+
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre del producto</label>
+            <input type="text" class="form-control" id="nombreProducto"  @bind="producto.title"></input>
+        </div>
+
+        <div class="mb-3">
+            <label for="precio" class="form-label">Precio</label>
+            <input type="text" class="form-control" id="precio" @bind="producto.price"></input>
+        </div>
+
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripcion</label>
+            <textarea class="form-control" id="descripcion" row="3" @bind="producto.description"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="categoria" class="form-label">Categoria</label>
+            <input type="text" class="form-control" id="categoria" @bind="producto.category"></input>
+        </div>
+
+
+        <div class="mb-3">
+            <label for="imagen" class="form-label">URL de la imagen</label>
+            <textarea class="form-control" id="imagen" row="3" @bind="producto.image"></textarea>
+        </div>
+
+        <button class="btn btn-success mt-3" type="submit">Guardar cambios</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private bool estaCargando = true;
+
+    private string? mensaje;
+
+    Producto? producto = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        estaCargando = true;
+        producto = await _http.GetFromJsonAsync<Producto>($"products/{Id}");
+        estaCargando = false;
+    }
+
+    private void mostrarProductos()
+    {
+        _navigationManager.NavigateTo("/listaProductos");
+    }
+
+    private async Task putProducto()
+    {
+        var resultado = await _http.PutAsJsonAsync($"products/{Id}", producto);
+
+        try
+        {
+            resultado.EnsureSuccessStatusCode();
+            mostrarProductos();
+        }
+        catch(HttpRequestException ex)
+        {
+            mensaje = $"Hubo un error actualizando el producto. Error código: {ex.HttpRequestError}";
+        }
+    }
+}

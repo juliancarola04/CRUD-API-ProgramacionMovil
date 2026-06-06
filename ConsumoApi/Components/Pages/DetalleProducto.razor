@@ -1,0 +1,52 @@
+﻿@page "/detalleProducto/{Id:int}"
+@inject HttpClient _http
+
+@if (estaCargando)
+{
+    <p>Cargando el producto...</p>
+}
+else
+{
+    if (producto is null)
+    {
+        <p>Hubo un problema buscando el producto.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Puntaje de reseña</th>
+                    <th scope="col">Número de reseñas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>$@producto.price</td>
+                    <td>@producto.description</td>
+                    <td>@producto.category</td>
+                    <td>@producto.rating.rate</td>
+                    <td>@producto.rating.count</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private bool estaCargando = true;
+    private Producto producto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaCargando = true;
+        producto = await _http.GetFromJsonAsync<Producto>($"products/{Id}");
+        estaCargando = false;
+    }
+}

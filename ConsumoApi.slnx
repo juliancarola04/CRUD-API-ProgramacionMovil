@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="ConsumoApi/ConsumoApi.csproj" />
+  <Project Path="ConsumoApi/ConsumoApi.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>

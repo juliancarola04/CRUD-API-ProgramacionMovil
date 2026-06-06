@@ -12,34 +12,70 @@
         <p>No se encontraron productos.</p>
     } else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Nombre del producto</th>
-                    <th scope="col">Imagen</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (Producto producto in productos)
-                {
+        if(mostrarDetalles == false)
+        {
+            <div class="text-center">
+                <button class="btn btn-success">Agregar producto</button>
+            </div>
+
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@producto.title</td>
-                        <td>
-                            <img src="@producto.image" alt="Imagen del producto: @producto.title" width="100" height="100" />
-                        </td>
-                        <td>
-                            <button class="btn btn-primary" @onclick="() => detallesProducto(producto.id)">Detalles</button>
-                        </td>
+                        <th scope="col">Nombre del producto</th>
+                        <th scope="col">Imagen</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (Producto producto in productos)
+                    {
+                        <tr>
+                            <td>@producto.title</td>
+                            <td>
+                                <img src="@producto.image" alt="Imagen del producto: @producto.title" width="100" height="100" />
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" @onclick="() => detallesProducto(producto)">Detalles</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        } else
+        {
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-primary" @onclick="cambiarEstado">Mostrar todos los productos</button>
+                <button class="btn btn-primary">Modificar el producto</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Categoria</th>
+                        <th scope="col">Puntaje de reseña</th>
+                        <th scope="col">Número de reseñas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>$@productoElegido.price</td>
+                        <td>@productoElegido.description</td>
+                        <td>@productoElegido.category</td>
+                        <td>@productoElegido.rating.rate</td>
+                        <td>@productoElegido.rating.count</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
     }
 }
 
 @code {
     private List<Producto> productos = new();
     private bool estaCargando = true;
+    private bool mostrarDetalles = false;
+    private Producto productoElegido = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,8 +84,15 @@
         estaCargando = false;
     }
 
-    private void detallesProducto(int Id)
+    private void cambiarEstado()
     {
-        _navigationManager.NavigateTo($"/detalleProducto/{Id}");
+        mostrarDetalles = !mostrarDetalles;
+    }
+
+
+    private void detallesProducto(Producto producto)
+    {
+        productoElegido = producto;
+        cambiarEstado();
     }
 }

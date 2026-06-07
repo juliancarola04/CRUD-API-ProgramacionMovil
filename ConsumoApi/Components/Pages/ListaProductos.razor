@@ -12,89 +12,49 @@
         <p>No se encontraron productos.</p>
     } else
     {
-        if(mostrarDetalles == false)
-        {
-            <div class="text-center">
+        <div class="container">
+            <div class="d-flex justify-content-center mb-3">
                 <button class="btn btn-success" @onclick="agregarProducto">Agregar producto</button>
             </div>
-
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Nombre del producto</th>
-                        <th scope="col">Imagen</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (Producto producto in productos)
-                    {
-                        <tr>
-                            <td>@producto.title</td>
-                            <td>
-                                <img src="@producto.image" alt="Imagen del producto: @producto.title" width="100" height="100" />
-                            </td>
-                            <td>
-                                <button class="btn btn-primary" @onclick="() => detallesProducto(producto)">Detalles</button>
-                                <button class="btn btn-danger" @onclick="() => eliminarProducto(producto.id)">Eliminar</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        } else
-        {
-            <div class="d-flex justify-content-between">
-                <button class="btn btn-primary" @onclick="cambiarEstado">Mostrar todos los productos</button>
-                <button class="btn btn-primary" @onclick="() => modificarProducto(productoElegido.id)">Modificar el producto</button>
+            <div class="row">
+                @foreach (Producto producto in productos)
+                {
+                    <div class="col-lg-6 col-sm-auto">
+                        <div class="card mb-3">
+                            <div class="row">
+                                <div class="col-4">
+                                    <img src="@producto.image" class="img-fluid rounded-start" alt="Imagen del producto @producto.title">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body h-100">
+                                        <h5 class="card-title">@producto.title</h5>
+                                        <p class="card-text">@producto.description</p>
+                                        <p class="card-text">Precio: $@producto.price</p>
+                                        <p class="card-text">Categoria: @producto.category</p>
+                                        <p class="card-text">Puntaje de reseña: @producto.rating.rate</p>
+                                        <p class="card-text">Número de reseñas: @producto.rating.count</p>
+                                        <button class="btn btn-primary" @onclick="() => modificarProducto(producto.id)">Modificar</button>
+                                        <button class="btn btn-danger" @onclick="() => eliminarProducto(producto.id)">Eliminar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
-
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Descripción</th>
-                        <th scope="col">Categoria</th>
-                        <th scope="col">Puntaje de reseña</th>
-                        <th scope="col">Número de reseñas</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>$@productoElegido.price</td>
-                        <td>@productoElegido.description</td>
-                        <td>@productoElegido.category</td>
-                        <td>@productoElegido.rating.rate</td>
-                        <td>@productoElegido.rating.count</td>
-                    </tr>
-                </tbody>
-            </table>
-        }
+        </div>
     }
 }
 
 @code {
     private List<Producto> productos = new();
     private bool estaCargando = true;
-    private bool mostrarDetalles = false;
-    private Producto productoElegido = new();
 
     protected override async Task OnInitializedAsync()
     {
         estaCargando = true;
         productos = await _http.GetFromJsonAsync<List<Producto>>("products");
         estaCargando = false;
-    }
-
-    private void cambiarEstado()
-    {
-        mostrarDetalles = !mostrarDetalles;
-    }
-
-
-    private void detallesProducto(Producto producto)
-    {
-        productoElegido = producto;
-        cambiarEstado();
     }
 
     private void modificarProducto(int id)
@@ -118,3 +78,4 @@
         var response = await _http.DeleteAsync($"products/{id}");
     }
 }
+

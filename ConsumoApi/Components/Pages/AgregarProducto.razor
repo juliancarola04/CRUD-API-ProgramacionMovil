@@ -4,54 +4,78 @@
 
 <button class="btn btn-primary mb-3" @onclick="mostrarProductos">Mostrar todos los productos</button>
 
-@if (mensaje is not null)
+@if (huboError)
 {
     <p>@mensaje</p>
 }
 <EditForm Model="@producto" OnValidSubmit="putProducto">
+    <DataAnnotationsValidator />
 
     <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre del producto</label>
-        <input type="text" class="form-control" id="nombreProducto" @bind="producto.title"></input>
+        <label for="nombreProducto" class="form-label">Nombre del producto</label>
+        <InputText id="nombreProducto"
+                   class="form-control"
+                   @bind-Value="producto.title" />
+        <ValidationMessage For="@(() => producto.title)" />
     </div>
 
     <div class="mb-3">
         <label for="precio" class="form-label">Precio</label>
-        <input type="text" class="form-control" id="precio" @bind="producto.price"></input>
+        <InputNumber id="precio"
+                     class="form-control"
+                     @bind-Value="producto.price" />
+        <ValidationMessage For="@(() => producto.price)" />
     </div>
 
     <div class="mb-3">
-        <label for="descripcion" class="form-label">Descripcion</label>
-        <textarea class="form-control" id="descripcion" row="3" @bind="producto.description"></textarea>
+        <label for="descripcion" class="form-label">Descripción</label>
+        <InputTextArea id="descripcion"
+                       class="form-control"
+                       @bind-Value="producto.description" />
+        <ValidationMessage For="@(() => producto.description)" />
     </div>
 
     <div class="mb-3">
-        <label for="categoria" class="form-label">Categoria</label>
-        <input type="text" class="form-control" id="categoria" @bind="producto.category"></input>
+        <label for="categoria" class="form-label">Categoría</label>
+        <InputText id="categoria"
+                   class="form-control"
+                   @bind-Value="producto.category" />
+        <ValidationMessage For="@(() => producto.category)" />
     </div>
-
 
     <div class="mb-3">
         <label for="imagen" class="form-label">URL de la imagen</label>
-        <textarea class="form-control" id="imagen" row="3" @bind="producto.image"></textarea>
+        <InputTextArea id="imagen"
+                       class="form-control"
+                       @bind-Value="producto.image" />
+        <ValidationMessage For="@(() => producto.image)" />
     </div>
 
     <div class="mb-3">
         <label for="puntaje" class="form-label">Puntaje</label>
-        <input type="text" class="form-control" id="imagen" row="3" @bind="producto.rating.rate"></input>
+        <InputNumber id="puntaje"
+                     class="form-control"
+                     @bind-Value="producto.rating.rate" />
+        <ValidationMessage For="@(() => producto.rating.rate)" />
     </div>
 
     <div class="mb-3">
         <label for="numeroResenas" class="form-label">Número de reseñas</label>
-        <input type="text" class="form-control" id="imagen" row="3" @bind="producto.rating.count"></input>
+        <InputNumber id="numeroResenas"
+                     class="form-control"
+                     @bind-Value="producto.rating.count" />
+        <ValidationMessage For="@(() => producto.rating.count)" />
     </div>
 
-    <button class="btn btn-success mt-3" type="submit">Guardar cambios</button>
+    <button class="btn btn-success mt-3" type="submit">
+        Guardar cambios
+    </button>
 </EditForm>
 
 @code {
 
     private string? mensaje;
+    private bool huboError = false;
 
     Producto? producto = new();
 
@@ -62,16 +86,18 @@
 
     private async Task putProducto()
     {
-        var resultado = await _http.PostAsJsonAsync($"products", producto);
+        var response = await _http.PostAsJsonAsync($"products", producto);
 
         try
         {
-            resultado.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
             mostrarProductos();
+            huboError = false;
         }
         catch (HttpRequestException ex)
         {
-            mensaje = $"Hubo un error actualizando el producto. Error código: {ex.HttpRequestError}";
+            mensaje = $"Hubo un error agregando el producto. Error código: {response.StatusCode}";
+            huboError = true;
         }
     }
 }

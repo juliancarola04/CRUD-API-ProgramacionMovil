@@ -7,11 +7,14 @@
     <p>Cargando la lista de productos...</p>
 } else
 {
-    if (productos.Count == 0)
+    if (huboError)
+    {
+        <p>@mensaje</p>
+
+    } else if (productos.Count == 0)
     {
         <p>No se encontraron productos.</p>
-    } else
-    {
+    } else {
         <div class="container">
             <div class="d-flex justify-content-center mb-3">
                 <button class="btn btn-success" @onclick="agregarProducto">Agregar producto</button>
@@ -43,17 +46,32 @@
                 }
             </div>
         </div>
-    }
+    }    
 }
 
 @code {
     private List<Producto> productos = new();
     private bool estaCargando = true;
+    private bool huboError = false;
+
+    private string? mensaje;
+
 
     protected override async Task OnInitializedAsync()
     {
         estaCargando = true;
-        productos = await _http.GetFromJsonAsync<List<Producto>>("products");
+        var response = await _http.GetAsync("products");
+        try
+        {
+            response.EnsureSuccessStatusCode();
+            productos = await response.Content.ReadFromJsonAsync<List<Producto>>();
+            huboError = false;
+        }
+        catch (HttpRequestException ex)
+        {
+            huboError = true;
+            mensaje = $"Hubo un error recupernado los productos. Error código: {response.StatusCode}";
+        }
         estaCargando = false;
     }
 
@@ -64,18 +82,23 @@
 
     private void agregarProducto()
     {
-        try
-        {
-            _navigationManager.NavigateTo("/agregarproducto");
-        } catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        _navigationManager.NavigateTo("/agregarproducto");
     }
 
     private async Task eliminarProducto(int id)
     {
-        var response = await _http.DeleteAsync($"products/{id}");
+        HttpResponseMessage response = await _http.DeleteAsync($"products/{id}");
+        try
+        {
+            response.EnsureSuccessStatusCode();
+            productos.RemoveAll(x => x.id == id);
+        }
+        catch (HttpRequestException ex)
+        {
+            huboError = true;
+            mensaje = $"Hubo un error eliminando los productos. Error código: {response.StatusCode}";
+        }
+
     }
 }
 

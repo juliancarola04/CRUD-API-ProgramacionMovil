@@ -33,7 +33,6 @@ Ejecución
 API base
 - La URL base utilizada por HttpClient está configurada en: ConsumoApi/MauiProgram.cs
   - Por defecto: https://fakestoreapi.com/
-  - Cambiarla editando la instancia HttpClient registrada en MauiProgram.cs si quieres apuntar a otra API.
 
 Páginas y endpoints
 

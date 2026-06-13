@@ -53,9 +53,17 @@ Páginas y endpoints
 	- POST products -> Crea un nuevo producto (envía el objeto Producto en JSON)
 
 - ModificarProducto
-  - Ruta: /modificarproducto/{Id:int?}
+  - Ruta: /modificarproducto/{Id:int}
   - Archivo: ConsumoApi/Components/Pages/ModificarProducto.razor
   - Descripción: Carga un producto por id, permite editar y guardar cambios.
+  - Endpoints consumidos (base: https://fakestoreapi.com/):
+	- GET products/{id} -> Recupera un producto por id
+	- PUT products/{id} -> Actualiza un producto por id (envía el objeto Producto en JSON)
+
+- DetallesProducto
+  - Ruta: /detalleproducto/{id:int}
+  - Archivo: ConsumoApi/Components/Pages/DetallesProducto.razor
+  - Descripción: Muestra los detalles de un producto conseguido a través de su id.
   - Endpoints consumidos (base: https://fakestoreapi.com/):
 	- GET products/{id} -> Recupera un producto por id
 	- PUT products/{id} -> Actualiza un producto por id (envía el objeto Producto en JSON)
@@ -69,6 +77,3 @@ Modelos
   - category: string
   - image: string
   - rating: Rating (objeto con rate, count)
-
-Licencia
-- Usalo como quieras!!!

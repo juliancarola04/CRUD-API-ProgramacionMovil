@@ -41,24 +41,24 @@ Páginas y endpoints
   - Ruta: /listaProductos
   - Archivo: ConsumoApi/Components/Pages/ListaProductos.razor
   - Descripción: Muestra la lista de productos en tarjetas; permite navegar para modificar o agregar y eliminar.
-  - Endpoints consumidos:
-	- GET /products  -> Recupera todos los productos
-	- DELETE /products/{id} -> Elimina un producto por id
+  - Endpoints consumidos (base: https://fakestoreapi.com/):
+	- GET products  -> Recupera todos los productos
+	- DELETE products/{id} -> Elimina un producto por id
 
 - AgregarProducto
   - Ruta: /agregarproducto
   - Archivo: ConsumoApi/Components/Pages/AgregarProducto.razor
   - Descripción: Formulario para crear un nuevo producto.
-  - Endpoints consumidos:
-	- POST /products -> Crea un nuevo producto (envía el objeto Producto en JSON)
+  - Endpoints consumidos (base: https://fakestoreapi.com/):
+	- POST products -> Crea un nuevo producto (envía el objeto Producto en JSON)
 
 - ModificarProducto
   - Ruta: /modificarproducto/{Id:int?}
   - Archivo: ConsumoApi/Components/Pages/ModificarProducto.razor
   - Descripción: Carga un producto por id, permite editar y guardar cambios.
-  - Endpoints consumidos:
-	- GET /products/{id} -> Recupera un producto por id
-	- PUT /products/{id} -> Actualiza un producto por id (envía el objeto Producto en JSON)
+  - Endpoints consumidos (base: https://fakestoreapi.com/):
+	- GET products/{id} -> Recupera un producto por id
+	- PUT products/{id} -> Actualiza un producto por id (envía el objeto Producto en JSON)
 
 Modelos
 - Producto (ConsumoApi/Models/Producto.cs)

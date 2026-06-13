@@ -1,4 +1,6 @@
-﻿@page "/modificarproducto/{Id:int?}"
+﻿@* En esta página podremos modificar un producto que nos venga por parámetro. Se accederá a esta página a través del listado de productos. *@
+
+@page "/modificarproducto/{Id:int}"
 @inject HttpClient _http
 @inject NavigationManager _navigationManager
 
@@ -9,15 +11,65 @@
 else if (huboError)
 {
     <p>@mensaje</p>
-} else
+    @* Le permito irse si es que hubo un error *@
+    <button class="btn btn-primary mt-3" @onclick="mostrarProductos">
+        Mostrar todos los productos
+    </button>
+}
+else if (producto is null)
 {
-    <button class="btn btn-primary mb-3" @onclick="mostrarProductos">Mostrar todos los productos</button>
+    <p>No se pudo cargar el producto...</p>
+    <button class="btn btn-secondary"
+            @onclick="mostrarProductos">
+        Mostrar productos
+    </button>
+}
+else
+{
+    @* Luego de ya sea modificar o hacer el intento le muestro un modal donde se ven más detalles *@
+    @if (mostrarModal)
+    {
+        <div class="modal fade show d-block" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modificar producto</h5>
+                    </div>
 
-    if (producto is null)    
-    { 
-        <p>No se pudo cargar el producto...</p>
+                    <div class="modal-body">
+                        @if (!huboError)
+                        {
+                            <p>Producto modificado correctamente!</p>
+                        }
+                        else
+                        {
+                            <p>@mensaje</p>
+                        }
 
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary"
+                                @onclick="mostrarProductos">
+                            Mostrar productos
+                        </button>
+
+                        @if (huboError) @* Solo si falló la modificación le permito volver a modificar el producto. *@
+                        {
+                            <button class="btn btn-danger"
+                            @onclick="ocultarModalModificar">
+                                Cerrar
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-backdrop fade show"></div>
     }
+
+    @* Le permito al usuario modificar el producto. *@
     <EditForm Model="@producto" OnValidSubmit="putProducto">
         <DataAnnotationsValidator />
 
@@ -54,8 +106,12 @@ else if (huboError)
         <button class="btn btn-success mt-3" type="submit">
             Guardar cambios
         </button>
+        <button class="btn btn-primary mt-3" @onclick="mostrarProductos">
+            Mostrar todos los productos
+        </button>
     </EditForm>
 }
+
 
 @code {
     [Parameter]
@@ -63,11 +119,12 @@ else if (huboError)
 
     private bool estaCargando = true;
     private bool huboError = false;
-
+    private bool mostrarModal = false;
     private string? mensaje;
 
     Producto? producto = new();
 
+    @* Acá es donde busca en si el producto. No abro modal si esto da exception *@
     protected override async Task OnParametersSetAsync()
     {
         estaCargando = true;
@@ -91,6 +148,7 @@ else if (huboError)
         _navigationManager.NavigateTo("/listaProductos");
     }
 
+    @* Acá es donde en sí actualiza el producto. Sí muestro el modal. *@
     private async Task putProducto()
     {
         var response = await _http.PutAsJsonAsync($"products/{Id}", producto);
@@ -99,13 +157,24 @@ else if (huboError)
         {
             response.EnsureSuccessStatusCode();
             huboError = false;
-            mostrarProductos();
+            mostrarModalModificar();
         }
         catch(HttpRequestException ex)
         {
 
             mensaje = $"Hubo un error actualizando el producto. Error código: {response.StatusCode}";
             huboError = true;
+            ocultarModalModificar();
         }
+    }
+
+    private void mostrarModalModificar()
+    {
+        mostrarModal = true;
+    }
+
+    private void ocultarModalModificar()
+    {
+        mostrarModal = false;
     }
 }

@@ -1,14 +1,54 @@
-﻿@page "/agregarproducto"
+﻿@* En esta página se va a poder agregar un producto *@
+
+@page "/agregarproducto"
 @inject NavigationManager _navigationManager
 @inject HttpClient _http
 
-<button class="btn btn-primary mb-3" @onclick="mostrarProductos">Mostrar todos los productos</button>
-
-@if (huboError)
+@* El modal se va a mostrar cuando le demos al botón de agregar y nos mostrará ya sea o que funcionó o que falló y si falló cuál es el error (no está el errro code, está el mensaje) *@
+@if (mostrarModal)
 {
-    <p>@mensaje</p>
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar producto</h5>
+                </div>
+
+                <div class="modal-body">
+                    @if (!huboError)
+                    {
+                        <p>Producto agregado correctamente!</p>
+                    } else
+                    {
+                        <p>@mensaje</p>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="mostrarProductos">
+                        Mostrar productos
+                    </button>
+
+                    @if (huboError)
+                    {
+                        <button class="btn btn-danger"
+                                @onclick="ocultarModalAgregar">
+                            Cerrar
+                        </button>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
 }
-<EditForm Model="@producto" OnValidSubmit="putProducto">
+
+@* Le presento el form para que agregue el producto *@
+<EditForm Model="@producto" OnValidSubmit="postProducto">
     <DataAnnotationsValidator />
 
     <div class="mb-3">
@@ -70,12 +110,18 @@
     <button class="btn btn-success mt-3" type="submit">
         Guardar cambios
     </button>
+
+    <button class="btn btn-primary mt-3" @onclick="mostrarProductos">
+        Mostrar todos los productos
+    </button>
 </EditForm>
 
 @code {
 
     private string? mensaje;
     private bool huboError = false;
+    private bool mostrarModal = false;
+    private bool estaCargando = true;
 
     Producto? producto = new();
 
@@ -84,20 +130,30 @@
         _navigationManager.NavigateTo("/listaProductos");
     }
 
-    private async Task putProducto()
+    private async Task postProducto()
     {
-        var response = await _http.PostAsJsonAsync($"products", producto);
+        var response = await _http.PostAsJsonAsync($"produts", producto);
 
         try
         {
-            response.EnsureSuccessStatusCode();
-            mostrarProductos();
+            response.EnsureSuccessStatusCode(); @* Si esto falla tira excepción que la catcheo luego *@
             huboError = false;
+            mostrarModalAgregar();
         }
         catch (HttpRequestException ex)
         {
             mensaje = $"Hubo un error agregando el producto. Error código: {response.StatusCode}";
+            mostrarModalAgregar();
             huboError = true;
         }
+    }
+    private void mostrarModalAgregar()
+    {
+        mostrarModal = true;
+    }
+
+    private void ocultarModalAgregar()
+    {
+        mostrarModal = false;
     }
 }
